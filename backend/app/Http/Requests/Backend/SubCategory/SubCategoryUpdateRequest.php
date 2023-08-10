@@ -24,7 +24,7 @@ class SubCategoryUpdateRequest extends FormRequest
         return [
             'name' => 'required|max:50',
             'category_id' => 'required',
-            'image' => 'nullable|mimes:jpeg,png,jpg,gif',
+            'image' => 'nullable',
         ];
     }
 }

@@ -6,14 +6,47 @@ use App\Http\Requests\Backend\Product\ProductStoreRequest;
 use App\Http\Requests\Backend\Product\ProductUpdateRequest;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\SubCategory;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    function getProduct()
+    function getProduct(Request $request)
     {
-        $products = Product::latest()->get();
+        $search = $request->input('search');
+        if ($search) {
+            $products = Product::whereHas('sub_category', function ($query) use ($search) {
+                $query->where('name', 'LIKE', "%$search%");
+            })
+                ->orWhere('name', 'LIKE', "%$search%")
+                ->orWhere('title', 'LIKE', "%$search%")
+                ->orWhere('price', 'LIKE', "%$search%")
+                ->orWhere('discount', 'LIKE', "%$search%")
+                ->orWhere('offer', 'LIKE', "%$search%")
+                ->latest()
+                ->with('sub_category')
+                ->get();
+        } else if ($request->input('sort')) {
+            if($request->input('sort') == 'lowest_price')
+            {
+                $products = Product::orderBy('price', 'ASC')->with('sub_category')->get();
+            }else if($request->input('sort') == 'highest_price')
+            {
+                $products = Product::orderBy('price', 'DESC')->with('sub_category')->get();
+            }
+        } else if($request->input('subCategoryId')) {
+            $subCategoryId = $request->input('subCategoryId');
+            $products = Product::where('sub_category_id', $subCategoryId)->latest()->with('sub_category')->get();
+        } else {
+            $products = Product::latest()->with('sub_category')->get();
+        }
+        return $products;
+    }
+    function getSubCategoryForStoreProduct()
+    {
+        $products = SubCategory::latest()->get();
         return $products;
     }
 
@@ -24,8 +57,8 @@ class ProductController extends Controller
         $product = new Product();
         $product->name = $request->name;
         $product->slug = $slug;
-        $product->sub_category_id = $request->sub_category_id;
         $product->title = $request->title;
+        $product->sub_category_id = $request->sub_category_id;
         $product->color = $request->color;
         $product->price = $request->price;
         $product->discount = $request->discount;
@@ -60,7 +93,11 @@ class ProductController extends Controller
     function edit($id)
     {
         $product = Product::findOrFail(intval($id));
-        return $product;
+        $subCategory = SubCategory::latest()->get();
+        return [
+            $product,
+            $subCategory
+        ];
     }
 
     function update(ProductUpdateRequest $request, $id)

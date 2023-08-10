@@ -52,6 +52,7 @@ Route::controller(CategoryController::class)->group(function () {
 
 Route::controller(SubCategoryController::class)->group(function () {
     Route::get('/get-sub_category', 'getSubCategory');
+    Route::get('/get-category-for-subcategory', 'getCategoryForSubCategory');
     Route::post('/sub_category-store', 'store');
     Route::get('/sub_category-edit/{id}', 'edit');
     Route::post('/sub_category-update/{id}', 'update');
@@ -60,6 +61,7 @@ Route::controller(SubCategoryController::class)->group(function () {
 
 Route::controller(ProductController::class)->group(function () {
     Route::get('/get-product', 'getProduct');
+    Route::get('/get-sub-category-for-store-product', 'getSubCategoryForStoreProduct');
     Route::post('/product-store', 'store');
     Route::get('/product-edit/{id}', 'edit');
     Route::post('/product-update/{id}', 'update');

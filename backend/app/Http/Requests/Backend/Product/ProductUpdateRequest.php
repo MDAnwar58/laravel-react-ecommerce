@@ -30,7 +30,7 @@ class ProductUpdateRequest extends FormRequest
             'discount' => 'required|max:50',
             'offer' => 'required|max:50',
             'des' => 'required',
-            'image' => 'nullable|mimes:jpeg,png,jpg,gif',
+            'image' => 'nullable',
         ];
     }
 }

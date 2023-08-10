@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Backend\SubCategory\SubCategoryRequest;
 use App\Http\Requests\Backend\SubCategory\SubCategoryUpdateRequest;
+use App\Models\Category;
 use App\Models\SubCategory;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -12,7 +13,12 @@ class SubCategoryController extends Controller
 {
     function getSubCategory()
     {
-        $subcategory = SubCategory::latest()->get();
+        $subcategory = SubCategory::latest()->with('category')->paginate(3);
+        return $subcategory;
+    }
+    function getCategoryForSubCategory()
+    {
+        $subcategory = Category::latest()->get();
         return $subcategory;
     }
     function store(SubCategoryRequest $request)
@@ -51,7 +57,11 @@ class SubCategoryController extends Controller
     function edit($id)
     {
         $subCategory = SubCategory::findOrFail(intval($id));
-        return $subCategory;
+        $categories = Category::latest()->get();
+        return [
+            $subCategory,
+            $categories
+        ];
     }
     function update(SubCategoryUpdateRequest $request, $id)
     {
